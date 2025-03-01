@@ -2,7 +2,7 @@ from vllm import LLM, SamplingParams
 import torch
 
 prompts = [
-    "<think>\nWhat is the capital of France?\n"
+    r"What is the capital of France? Think thoroughly and then answer. You must begin your output with <think>\n"
 ]
 
 sampling_params = SamplingParams(
