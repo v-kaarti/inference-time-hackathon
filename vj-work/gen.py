@@ -1,28 +1,28 @@
-from vllm import LLM, SamplingParams
-import torch
+# SPDX-License-Identifier: Apache-2.0
 
-prompts = [
-    r"What is the capital of France? Think thoroughly and then answer. You must begin your output with <think>\n"
-]
+from openai import OpenAI
 
-sampling_params = SamplingParams(
-    temperature=0.8,
-    top_p=0.95
+# Modify OpenAI's API key and API base to use vLLM's API server.
+openai_api_key = "EMPTY"
+openai_api_base = "http://localhost:8000/v1"
+
+client = OpenAI(
+    api_key=openai_api_key,
+    base_url=openai_api_base,
 )
 
-# Configure for 8 H100s
-llm = LLM(
-    model="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-    tensor_parallel_size=8,
-    max_model_len=1024,
-    gpu_memory_utilization=0.8,
-    enforce_eager=True,
-    dtype=torch.bfloat16,
+# Set the model explicitly
+model = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
+
+chat_completion = client.chat.completions.create(
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Who won the world series in 2020?"},
+        {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+        {"role": "user", "content": "Where was it played?"}
+    ],
+    model=model,
 )
 
-outputs = llm.generate(prompts, sampling_params)
-
-for output in outputs:
-    prompt = output.prompt
-    generated_text = output.outputs[0].text
-    print(f"Prompt: {prompt!r}, Generated text: {generated_text!r}")
+print("Chat completion results:")
+print(chat_completion)
